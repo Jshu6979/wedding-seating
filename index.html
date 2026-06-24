@@ -128,6 +128,21 @@
     font-size: 12px;
     color: var(--muted);
   }
+  .floorplan-wrap {
+    margin-top: 18px;
+    display: none;
+  }
+  .floorplan-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+  .floorplan-wrap img {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid #e6e0d8;
+    display: block;
+  }
   .spinner {
     display: inline-block;
     width: 14px;
@@ -158,6 +173,11 @@
         <p class="result-table" id="resultTable"></p>
         <p class="result-name" id="resultName"></p>
         <p class="result-err" id="resultErr"></p>
+      </div>
+
+      <div class="floorplan-wrap" id="floorplanWrap">
+        <p class="floorplan-label">Floor plan</p>
+        <img src="floorplan.png" alt="Reception floor plan showing table locations" />
       </div>
 
       <p class="status" id="status"><span class="spinner"></span>Loading guest list…</p>
@@ -239,11 +259,13 @@ function findTable() {
   const tableEl = document.getElementById('resultTable');
   const nameEl = document.getElementById('resultName');
   const errEl = document.getElementById('resultErr');
+  const floorplanWrap = document.getElementById('floorplanWrap');
 
   box.style.display = 'block';
   tableEl.textContent = '';
   nameEl.textContent = '';
   errEl.textContent = '';
+  floorplanWrap.style.display = 'none';
 
   if (!input) {
     box.className = 'result notfound';
@@ -259,6 +281,9 @@ function findTable() {
     label.textContent = 'Your table';
     tableEl.textContent = matches[0].table;
     nameEl.textContent = matches[0].name;
+    if (/^\d+$/.test(matches[0].table.trim())) {
+      floorplanWrap.style.display = 'block';
+    }
   } else if (matches.length > 1 && matches.length <= 6) {
     box.className = 'result found';
     label.textContent = 'Multiple matches — tap your name below';
