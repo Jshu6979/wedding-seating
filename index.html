@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title> Crystal &amp Jonathan;  — Find Your Table</title>
+<title> Crystal &amp; Jonathan — Find Your Table</title>
 <style>
   :root {
     --bg: #faf7f2;
@@ -289,6 +289,9 @@ function findTable() {
     label.textContent = 'Multiple matches';
     tableEl.textContent = '';
     nameEl.textContent = matches.map(m => `${m.name} → Table ${m.table}`).join('\n');
+    if (matches.some(m => /^\d+$/.test(m.table.trim()))) {
+      floorplanWrap.style.display = 'block';
+    }
   } else if (matches.length > 6) {
     box.className = 'result notfound';
     label.textContent = '';
