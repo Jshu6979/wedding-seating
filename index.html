@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Jonathan &amp; Crystal — Find Your Table</title>
+<title> Crystal &amp Jonathan;  — Find Your Table</title>
 <style>
   :root {
     --bg: #faf7f2;
@@ -286,7 +286,7 @@ function findTable() {
     }
   } else if (matches.length > 1 && matches.length <= 6) {
     box.className = 'result found';
-    label.textContent = 'Multiple matches — tap your name below';
+    label.textContent = 'Multiple matches';
     tableEl.textContent = '';
     nameEl.textContent = matches.map(m => `${m.name} → Table ${m.table}`).join('\n');
   } else if (matches.length > 6) {
