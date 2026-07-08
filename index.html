@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title> Crystal &amp; Jonathan — Find Your Table</title>
+<title>Crystal &amp; Jonathan — Find Your Table</title>
 <style>
   :root {
     --bg: #faf7f2;
@@ -160,7 +160,7 @@
 <body>
   <div class="wrap">
     <div class="card">
-      <p class="names">Crystal &amp; Jonathan </p>
+      <p class="names">Jonathan &amp; Crystal</p>
       <p class="subtitle">Type your name to find your table</p>
 
       <div class="search-row">
@@ -176,8 +176,8 @@
       </div>
 
       <div class="floorplan-wrap" id="floorplanWrap">
-        <p class="floorplan-label">Floor plan</p>
-        <img src="floorplan.png" alt="Reception floor plan showing table locations" />
+        <p class="floorplan-label">Floor plan — your table is highlighted</p>
+        <img id="floorplanImg" src="" alt="Reception floor plan with your table highlighted" />
       </div>
 
       <p class="status" id="status"><span class="spinner"></span>Loading guest list…</p>
@@ -189,6 +189,18 @@
 // ====== CONFIGURE THIS ======
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrm8aiZKcsTnudFJBXmmCSIJQD0-KTaP5FhQUw3z-PGuUVds7rCsmWe1oDJWEpjNl_H-jevqdPo35s/pub?gid=903307830&single=true&output=csv";
 // =============================
+
+// Maps table number (as string) to a floor plan image filename.
+// Tables 1-9 each get their own highlighted floor plan.
+// Any other value (Bridal, Groom, etc.) returns null = no image shown.
+function getFloorplanImage(tableValue) {
+  const tableNum = tableValue.trim();
+  const validTables = ['1','2','3','4','5','6','7','8','9'];
+  if (validTables.includes(tableNum)) {
+    return `floor plan ${tableNum}.png`;
+  }
+  return null;
+}
 
 let guestData = [];
 
@@ -252,6 +264,18 @@ async function loadGuestList() {
   }
 }
 
+function showFloorplan(imageFile) {
+  const wrap = document.getElementById('floorplanWrap');
+  const img = document.getElementById('floorplanImg');
+  if (imageFile) {
+    img.src = imageFile;
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+    img.src = '';
+  }
+}
+
 function findTable() {
   const input = document.getElementById('nameInput').value.trim().toLowerCase();
   const box = document.getElementById('result');
@@ -259,13 +283,12 @@ function findTable() {
   const tableEl = document.getElementById('resultTable');
   const nameEl = document.getElementById('resultName');
   const errEl = document.getElementById('resultErr');
-  const floorplanWrap = document.getElementById('floorplanWrap');
 
   box.style.display = 'block';
   tableEl.textContent = '';
   nameEl.textContent = '';
   errEl.textContent = '';
-  floorplanWrap.style.display = 'none';
+  showFloorplan(null);
 
   if (!input) {
     box.className = 'result notfound';
@@ -281,21 +304,24 @@ function findTable() {
     label.textContent = 'Your table';
     tableEl.textContent = matches[0].table;
     nameEl.textContent = matches[0].name;
-    if (/^\d+$/.test(matches[0].table.trim())) {
-      floorplanWrap.style.display = 'block';
-    }
+    showFloorplan(getFloorplanImage(matches[0].table));
+
   } else if (matches.length > 1 && matches.length <= 6) {
     box.className = 'result found';
     label.textContent = 'Multiple matches';
     tableEl.textContent = '';
     nameEl.textContent = matches.map(m => `${m.name} → Table ${m.table}`).join('\n');
-    if (matches.some(m => /^\d+$/.test(m.table.trim()))) {
-      floorplanWrap.style.display = 'block';
+    // Show floor plan only if all matches are at the same numbered table
+    const uniqueTables = [...new Set(matches.map(m => m.table.trim()))];
+    if (uniqueTables.length === 1) {
+      showFloorplan(getFloorplanImage(uniqueTables[0]));
     }
+
   } else if (matches.length > 6) {
     box.className = 'result notfound';
     label.textContent = '';
     errEl.textContent = 'Too many matches — please type more of your name (e.g. full name).';
+
   } else {
     box.className = 'result notfound';
     label.textContent = '';
