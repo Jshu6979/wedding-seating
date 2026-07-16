@@ -349,6 +349,25 @@ document.getElementById('nameInput').addEventListener('keydown', e => {
 });
 
 loadGuestList();
+
+// ====== IFRAME AUTO-RESIZE ======
+// Tells the parent page (Hostinger) how tall this content currently is,
+// so the embed can shrink/grow instead of showing blank space or clipping.
+function sendHeightToParent() {
+  const height = document.body.scrollHeight;
+  window.parent.postMessage({ type: 'wedding-seating-resize', height: height }, '*');
+}
+
+// Fires automatically whenever the page's content height changes
+// (initial load, search results appearing, floor plan image loading, etc.)
+if (window.ResizeObserver) {
+  const resizeObserver = new ResizeObserver(() => sendHeightToParent());
+  resizeObserver.observe(document.body);
+} else {
+  // Fallback for older browsers without ResizeObserver support
+  window.addEventListener('load', sendHeightToParent);
+  setInterval(sendHeightToParent, 500);
+}
 </script>
 </body>
 </html>
